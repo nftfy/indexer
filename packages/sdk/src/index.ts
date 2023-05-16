@@ -29,6 +29,7 @@ import * as Alienswap from "./alienswap";
 import * as SeaportBase from "./seaport-base";
 import * as Sudoswap from "./sudoswap";
 import * as SuperRare from "./superrare";
+import * as SweepAndFlip from "./sweep-and-flip";
 import * as TofuNft from "./tofunft";
 import * as Treasure from "./treasure";
 import * as WyvernV2 from "./wyvern-v2";
@@ -104,6 +105,7 @@ export {
   SeaportBase,
   Sudoswap,
   SuperRare,
+  SweepAndFlip,
   TofuNft,
   Treasure,
   WyvernV2,
