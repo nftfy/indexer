@@ -13,4 +13,3 @@ export const Factory: ChainIdToAddress = {
   [Network.Polygon]: "0x05661efCbEd77f764caCbad9AAdC7250EB34c3C2",
   [Network.Arbitrum]: "0x05661efCbEd77f764caCbad9AAdC7250EB34c3C2",
 };
-

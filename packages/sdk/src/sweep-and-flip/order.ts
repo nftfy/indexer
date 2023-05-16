@@ -1,5 +1,4 @@
 import { Provider } from "@ethersproject/abstract-provider";
-import { _TypedDataEncoder } from "@ethersproject/hash";
 import { Signer } from "ethers";
 
 import * as Addresses from "./addresses";
@@ -17,7 +16,7 @@ export class Order {
     this.chainId = chainId;
 
     try {
-      this.params = normalize(params)
+      this.params = normalize(params);
     } catch {
       throw new Error("Invalid params");
     }
@@ -54,7 +53,7 @@ export class Order {
       throw new Error("Empty deadline");
     }
 
-    if(params.deadline < getCurrentTimestamp()) {
+    if (params.deadline < getCurrentTimestamp()) {
       throw new Error("Invalid deadline");
     }
   }
@@ -69,16 +68,19 @@ export class Order {
   public async checkFillability(provider: Provider) {
     const chainId = await provider.getNetwork().then((n) => n.chainId);
 
-    if (this.params.orderType === OrderType.ERC721_TO_ETH || this.params.orderType === OrderType.ERC721_TO_ERC20) {
+    if (
+      this.params.orderType === OrderType.ERC721_TO_ETH ||
+      this.params.orderType === OrderType.ERC721_TO_ERC20
+    ) {
       const collection = this.params.path[0];
       const erc721 = new Common.Helpers.Erc721(provider, collection);
 
-      this.params.tokenIds.forEach(async tokenId => {
+      this.params.tokenIds.forEach(async (tokenId) => {
         const owner = await erc721.getOwner(tokenId);
         if (lc(owner) !== lc(this.params.signerAddress)) {
           throw new Error("no-balance");
         }
-      })
+      });
 
       const isApproved = await erc721.isApproved(
         this.params.signerAddress,
@@ -87,14 +89,14 @@ export class Order {
       if (!isApproved) {
         throw new Error("no-approval");
       }
-    } 
+    }
 
     if (this.params.orderType === OrderType.ETH_TO_ERC721) {
       const balance = await provider.getBalance(this.params.signerAddress);
       if (bn(balance).lt(this.params.amount)) {
         throw new Error("no-balance");
       }
-    } 
+    }
 
     if (this.params.orderType === OrderType.ERC20_TO_ERC721) {
       const currency = this.params.path[0];
@@ -105,11 +107,14 @@ export class Order {
         throw new Error("no-balance");
       }
 
-      const allowance = await erc20.getAllowance(this.params.signerAddress, Addresses.Router[chainId]);
+      const allowance = await erc20.getAllowance(
+        this.params.signerAddress,
+        Addresses.Router[chainId]
+      );
       if (bn(allowance).lt(this.params.amount)) {
         throw new Error("no-approval");
       }
-    } 
+    }
   }
 }
 
@@ -117,7 +122,7 @@ const normalize = (order: Types.SwapOrderParams): Types.SwapOrderParams => {
   return {
     orderType: order.orderType,
     signerAddress: lc(order.signerAddress),
-    path: uniqBy(order.path, (address) => s(address)), 
+    path: uniqBy(order.path, (address) => s(address)),
     tokenIds: uniqBy(order.tokenIds, (id) => s(id)),
     amount: s(order.amount),
     recipient: lc(order.recipient),
