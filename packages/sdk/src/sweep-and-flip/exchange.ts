@@ -42,7 +42,7 @@ export class Exchange {
       } 
 
       case OrderType.ERC721_TO_ERC20: { 
-        const tx = this.swapExactTokensForETHCollection(
+        const tx = this.swapExactTokensForTokensCollection(
           await signer.getAddress(), 
           tokenIds, 
           amount, 
@@ -66,7 +66,7 @@ export class Exchange {
       } 
 
       case OrderType.ERC20_TO_ERC721: { 
-        const tx = this.swapExactTokensForETHCollection(
+        const tx = this.swapTokensForExactTokensCollection(
           await signer.getAddress(), 
           tokenIds, 
           amount, 
@@ -105,7 +105,7 @@ export class Exchange {
       } 
 
       case OrderType.ERC721_TO_ERC20: { 
-        const tx = this.swapExactTokensForETHCollection(
+        const tx = this.swapExactTokensForTokensCollection(
           await signer.getAddress(), 
           tokenIds, 
           amount, 
@@ -129,7 +129,7 @@ export class Exchange {
       } 
 
       case OrderType.ERC20_TO_ERC721: { 
-        const tx = this.swapExactTokensForETHCollection(
+        const tx = this.swapTokensForExactTokensCollection(
           await signer.getAddress(), 
           tokenIds, 
           amount, 
