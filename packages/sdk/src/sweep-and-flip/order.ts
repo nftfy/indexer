@@ -8,10 +8,19 @@ import { bn, getCurrentTimestamp, lc, n, s, uniqBy } from "../utils";
 import { OrderType } from "./types";
 import { isValidOrderType, isValidSwap } from "./helpers";
 
+/**
+ * Represents an order for a Sweep and Flip swap.
+ */
 export class Order {
   public chainId: number;
   public params: Types.SwapOrderParams;
 
+  /**
+   * Creates a new Order instance.
+   * @param chainId The chain ID of the order.
+   * @param params The parameters of the swap order.
+   * @throws Error if the params are invalid or missing required values.
+   */
   constructor(chainId: number, params: Types.SwapOrderParams) {
     this.chainId = chainId;
 
@@ -21,36 +30,8 @@ export class Order {
       throw new Error("Invalid params");
     }
 
-    if (!params.orderType) {
-      throw new Error("Empty order type");
-    }
-
     if (isValidOrderType(params.orderType.toString())) {
       throw new Error("Invalid order type");
-    }
-
-    if (!params.signerAddress) {
-      throw new Error("Empty signer");
-    }
-
-    if (!params.tokenIds.length) {
-      throw new Error("Empty selected items");
-    }
-
-    if (!params.path.length) {
-      throw new Error("Empty path");
-    }
-
-    if (!params.amount) {
-      throw new Error("Empty amount");
-    }
-
-    if (!params.recipient) {
-      throw new Error("Empty recipient");
-    }
-
-    if (!params.deadline) {
-      throw new Error("Empty deadline");
     }
 
     if (params.deadline < getCurrentTimestamp()) {
@@ -58,6 +39,11 @@ export class Order {
     }
   }
 
+  /**
+   * Checks the validity of the order.
+   * @param signer The Ethers Signer object used for call.
+   * @throws Error if the order is invalid or transaction will be reverted.
+   */
   public async checkValidity(signer: Signer) {
     const estimate = await isValidSwap(this.chainId, signer, this.params);
     if (!estimate) {
@@ -65,6 +51,11 @@ export class Order {
     }
   }
 
+  /**
+   * Checks the fillability of the order.
+   * @param provider The Ethers Provider object used for call.
+   * @throws Error if the order cannot be filled.
+   */
   public async checkFillability(provider: Provider) {
     const chainId = await provider.getNetwork().then((n) => n.chainId);
 
@@ -118,6 +109,11 @@ export class Order {
   }
 }
 
+/**
+ * Normalizes the swap order parameters by converting them to the expected format.
+ * @param order The swap order parameters.
+ * @returns The normalized swap order parameters.
+ */
 const normalize = (order: Types.SwapOrderParams): Types.SwapOrderParams => {
   return {
     orderType: order.orderType,

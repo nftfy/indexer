@@ -59,6 +59,14 @@ export async function getAmountsOut(chainId: number, tokenIds: string[], path: s
   };
 }
 
+/**
+ * Retrieves the price of an NFT based on OrderType, collection and currency.
+ * @param orderType swap OrderType.
+ * @param chainId chain ID associated with the order.
+ * @param collection collection address.
+ * @param currency currency address (optional).
+ * @returns price of one NFT in WETH or currency (wei).
+ */
 export async function getNftPrice(
   orderType: OrderType,
   chainId: number,
