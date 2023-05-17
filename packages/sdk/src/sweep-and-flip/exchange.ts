@@ -7,17 +7,33 @@ import { TxData } from "../utils";
 import RouterAbi from "./abis/Router.json";
 import { OrderType } from "./types";
 
+/**
+ * Represents an Exchange contract for swapping NFTs.
+ */
 export class Exchange {
   public chainId: number;
   public contract: Contract;
 
+  /**
+   * Creates a new Exchange instance.
+   * @param chainId The chain ID of the exchange.
+   */
   constructor(chainId: number) {
     this.chainId = chainId;
     this.contract = new Contract(Addresses.Router[this.chainId], RouterAbi);
   }
 
-  // --- Send Tx Swap NFTs ---
-
+  /**
+   * Send transaction to Swaps NFTs
+   * @param signer The Ethers Signer object used for execute transaction.
+   * @param orderType OrderType of swap
+   * @param path The path for the swap [input, output].
+   * @param tokenIds The token IDs of Nfts involved in the swap.
+   * @param amount The amount of currency for the swap.
+   * @param recipient The address of recipient wallet of the swap.
+   * @param deadline The deadline for the swap in seconds.
+   * @returns ContractTransaction object
+   */
   public async swapNFTs(
     signer: Signer,
     orderType: OrderType,
@@ -78,8 +94,17 @@ export class Exchange {
     }
   }
 
-  // --- Estimate Swap NFTs ---
-
+  /**
+   * Estimates the result of NFT swap.
+   * @param signer The Ethers Signer object used for execute transaction.
+   * @param orderType OrderType of swap
+   * @param path The path for the swap [input, output].
+   * @param tokenIds The token IDs of Nfts involved in the swap.
+   * @param amount The amount of currency for the swap.
+   * @param recipient The address of recipient wallet of the swap.
+   * @param deadline The deadline for the swap in seconds.
+   * @returns A promise that resolves to the estimated result and return a string.
+   */
   public async estimateSwapNfts(
     signer: Signer,
     orderType: OrderType,
@@ -140,7 +165,7 @@ export class Exchange {
     }
   }
 
-  // --- Swap NFTs Methods Data ---
+  // --- Swap NFTs Tx Data ---
 
   public swapETHForExactTokensCollection(
     signer: string,
