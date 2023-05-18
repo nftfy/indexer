@@ -139,6 +139,10 @@ export type GenericOrder =
   | {
       kind: "looks-rare-v2";
       order: Sdk.LooksRareV2.Order;
+    }
+  | {
+      kind: "sweep-and-flip";
+      order: Sdk.SweepAndFlip.Order;
     };
 
 // Listings
