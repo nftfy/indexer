@@ -1,4 +1,4 @@
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, providers } from "ethers";
 
 import { Addresses, Exchange } from ".";
 import { OrderType, SwapOrderParams } from "./types";
@@ -6,6 +6,7 @@ import { OrderType, SwapOrderParams } from "./types";
 import RouterAbi from "./abis/Router.json";
 import FactoryAbi from "./abis/Factory.json";
 import { Common } from "..";
+import { Erc721 } from "../common/helpers";
 
 export function isValidOrderType(orderType: string): orderType is keyof typeof OrderType {
   return orderType in OrderType;
@@ -39,6 +40,16 @@ export async function getWrappedAddress(chainId: number, collection: string) {
   const factoryContract = new Contract(Addresses.Factory[chainId], FactoryAbi);
   const wrapperAddress = await factoryContract.getWrapper(collection);
   return wrapperAddress;
+}
+
+export async function getWrappedBalance(
+  provider: providers.BaseProvider,
+  collection: string,
+  wrapped: string
+) {
+  const erc721Contract = new Erc721(provider, collection);
+  const wrapperBalance = erc721Contract.getBalance(wrapped);
+  return wrapperBalance;
 }
 
 export async function getAmountsIn(chainId: number, tokenIds: string[], path: string[]) {
