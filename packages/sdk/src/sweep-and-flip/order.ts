@@ -1,4 +1,5 @@
 import { Provider } from "@ethersproject/abstract-provider";
+import { _TypedDataEncoder } from "@ethersproject/hash";
 import { Signer } from "ethers";
 
 import * as Addresses from "./addresses";
@@ -37,6 +38,10 @@ export class Order {
     if (params.deadline < getCurrentTimestamp()) {
       throw new Error("Invalid deadline");
     }
+  }
+
+  public hash() {
+    return _TypedDataEncoder.hashStruct("SwapOrder", Types.swapOrderTypedData , this.params);
   }
 
   /**
@@ -119,7 +124,9 @@ const normalize = (order: Types.SwapOrderParams): Types.SwapOrderParams => {
     orderType: order.orderType,
     signerAddress: lc(order.signerAddress),
     path: uniqBy(order.path, (address) => s(address)),
+    collection: s(order.collection),
     tokenIds: uniqBy(order.tokenIds, (id) => s(id)),
+    currency: s(order.collection),
     amount: s(order.amount),
     recipient: lc(order.recipient),
     deadline: n(order.deadline),
