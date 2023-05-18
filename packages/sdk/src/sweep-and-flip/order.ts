@@ -41,7 +41,7 @@ export class Order {
   }
 
   public hash() {
-    return _TypedDataEncoder.hashStruct("SwapOrder", Types.swapOrderTypedData , this.params);
+    return _TypedDataEncoder.hashStruct("SwapOrder", Types.swapOrderTypedData, this.params);
   }
 
   /**
