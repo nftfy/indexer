@@ -35,6 +35,10 @@ export class Erc721 {
     return this.contract.ownerOf(tokenId);
   }
 
+  public async getBalance(address: string): Promise<string> {
+    return this.contract.balanceOf(address);
+  }
+
   public async isApproved(owner: string, operator: string): Promise<boolean> {
     return this.contract.isApprovedForAll(owner, operator);
   }
