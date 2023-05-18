@@ -1,6 +1,6 @@
 import { Provider } from "@ethersproject/abstract-provider";
 import { _TypedDataEncoder } from "@ethersproject/hash";
-import { Signer } from "ethers";
+import { Signer, TypedDataField } from "ethers";
 
 import * as Addresses from "./addresses";
 import * as Types from "./types";
@@ -41,7 +41,7 @@ export class Order {
   }
 
   public hash() {
-    return _TypedDataEncoder.hashStruct("SwapOrder", Types.swapOrderTypedData, this.params);
+    return _TypedDataEncoder.hashStruct("SwapOrder", swapOrderTypedData, this.params);
   }
 
   /**
@@ -131,4 +131,63 @@ const normalize = (order: Types.SwapOrderParams): Types.SwapOrderParams => {
     recipient: lc(order.recipient),
     deadline: n(order.deadline),
   };
+};
+
+export const swapOrderTypedData: Record<string, TypedDataField[]> = {
+  SwapOrderParams: [
+    {
+      name: "orderType",
+      type: "OrderType",
+    },
+    {
+      name: "signerAddress",
+      type: "string",
+    },
+    {
+      name: "path",
+      type: "string[]",
+    },
+    {
+      name: "collection",
+      type: "string",
+    },
+    {
+      name: "tokenIds",
+      type: "string[]",
+    },
+    {
+      name: "currency",
+      type: "string",
+    },
+    {
+      name: "amount",
+      type: "string",
+    },
+    {
+      name: "recipient",
+      type: "string",
+    },
+    {
+      name: "deadline",
+      type: "number",
+    },
+  ],
+  OrderType: [
+    {
+      name: "ETH_TO_ERC721",
+      type: "number",
+    },
+    {
+      name: "ERC20_TO_ERC721",
+      type: "number",
+    },
+    {
+      name: "ERC721_TO_ETH",
+      type: "number",
+    },
+    {
+      name: "ERC721_TO_ERC20",
+      type: "number",
+    },
+  ],
 };
