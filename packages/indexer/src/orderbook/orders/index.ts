@@ -21,6 +21,7 @@ export * as nftx from "@/orderbook/orders/nftx";
 export * as manifold from "@/orderbook/orders/manifold";
 export * as superrare from "@/orderbook/orders/superrare";
 export * as looksRareV2 from "@/orderbook/orders/looks-rare-v2";
+export * as sweepandflip from "@/orderbook/orders/sweep-and-flip";
 
 // Imports
 
@@ -72,7 +73,8 @@ export type OrderKind =
   | "zeroex-v2"
   | "zeroex-v3"
   | "treasure"
-  | "looks-rare-v2";
+  | "looks-rare-v2"
+  | "sweep-and-flip";
 
 // In case we don't have the source of an order readily available, we use
 // a default value where possible (since very often the exchange protocol
@@ -173,6 +175,8 @@ export const getOrderSourceByOrderKind = async (
       case "superrare":
         return sources.getOrInsert("superrare.com");
       case "alienswap":
+        return sources.getOrInsert("alienswap.xyz");
+      case "sweep-and-flip":
         return sources.getOrInsert("alienswap.xyz");
 
       case "mint": {
@@ -410,6 +414,14 @@ export const generateListingDetailsV6 = (
         kind: "looks-rare-v2",
         ...common,
         order: new Sdk.LooksRareV2.Order(config.chainId, order.rawData),
+      };
+    }
+
+    case "sweep-and-flip": {
+      return {
+        kind: "sweep-and-flip",
+        ...common,
+        order: new Sdk.SweepAndFlip.Order(config.chainId, order.rawData) as any,
       };
     }
 
@@ -705,6 +717,15 @@ export const generateBidDetailsV6 = async (
       const sdkOrder = new Sdk.LooksRareV2.Order(config.chainId, order.rawData);
       return {
         kind: "looks-rare-v2",
+        ...common,
+        order: sdkOrder,
+      };
+    }
+
+    case "sweep-and-flip": {
+      const sdkOrder = new Sdk.SweepAndFlip.Order(config.chainId, order.rawData);
+      return {
+        kind: "sweep-and-flip",
         ...common,
         order: sdkOrder,
       };
