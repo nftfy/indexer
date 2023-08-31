@@ -19,11 +19,7 @@ export * as nftx from "@/orderbook/orders/nftx";
 export * as manifold from "@/orderbook/orders/manifold";
 export * as superrare from "@/orderbook/orders/superrare";
 export * as looksRareV2 from "@/orderbook/orders/looks-rare-v2";
-export * as collectionxyz from "@/orderbook/orders/collectionxyz";
-export * as sudoswapV2 from "@/orderbook/orders/sudoswap-v2";
-export * as midaswap from "@/orderbook/orders/midaswap";
-export * as caviarV1 from "@/orderbook/orders/caviar-v1";
-export * as paymentProcessor from "@/orderbook/orders/payment-processor";
+export * as SweepAndFlip from "@/orderbook/orders/sweep-and-flip";
 
 // Imports
 
@@ -84,7 +80,8 @@ export type OrderKind =
   | "caviar-v1"
   | "payment-processor"
   | "blur-v2"
-  | "joepeg";
+  | "joepeg"
+  | "sweep-and-flip";
 
 // In case we don't have the source of an order readily available, we use
 // a default value where possible (since very often the exchange protocol
@@ -191,6 +188,8 @@ export const getOrderSourceByOrderKind = async (
         return sources.getOrInsert("alienswap.xyz");
       case "collectionxyz":
         return sources.getOrInsert("collection.xyz");
+      case "sweep-and-flip":
+        return sources.getOrInsert("sweepnflip.io");
       case "mint": {
         if (address && mintsSources.has(address)) {
           return sources.getOrInsert(mintsSources.get(address)!);
@@ -436,6 +435,14 @@ export const generateListingDetailsV6 = (
         kind: "payment-processor",
         ...common,
         order: new Sdk.PaymentProcessor.Order(config.chainId, order.rawData),
+      };
+    }
+
+    case "sweep-and-flip": {
+      return {
+        kind: "sweep-and-flip",
+        ...common,
+        order: new Sdk.SweepAndFlip.Order(config.chainId, order.rawData) as any,
       };
     }
 
@@ -737,6 +744,15 @@ export const generateBidDetailsV6 = async (
         kind: "collectionxyz",
         ...common,
         extraArgs,
+        order: sdkOrder,
+      };
+    }
+
+    case "sweep-and-flip": {
+      const sdkOrder = new Sdk.SweepAndFlip.Order(config.chainId, order.rawData);
+      return {
+        kind: "sweep-and-flip",
+        ...common,
         order: sdkOrder,
       };
     }

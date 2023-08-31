@@ -42,4 +42,8 @@ export class Erc721 {
   public async isApprovedSingleToken(tokenId: string, operator: string): Promise<boolean> {
     return this.contract.getApproved(tokenId).then((a: string) => a.toLowerCase() === operator);
   }
+
+  public async getBalance(address: string): Promise<string> {
+    return this.contract.balanceOf(address);
+  }
 }

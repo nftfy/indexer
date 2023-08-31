@@ -157,6 +157,10 @@ export type GenericOrder =
   | {
       kind: "payment-processor";
       order: Sdk.PaymentProcessor.Order;
+    }
+  | {
+      kind: "sweep-and-flip";
+      order: Sdk.SweepAndFlip.Order;
     };
 
 // Listings
