@@ -16,6 +16,8 @@ import { DbOrder, OrderMetadata, generateSchemaHash } from "@/orderbook/orders/u
 import { OrderType } from "@reservoir0x/sdk/src/sweep-and-flip/types";
 import { generateMerkleTree } from "@reservoir0x/sdk/src/common/helpers";
 import * as tokenSet from "@/orderbook/token-sets";
+import { Contract } from "@ethersproject/contracts";
+import { Interface } from "@ethersproject/abi";
 
 export type OrderInfo = {
   orderParams: {
@@ -117,7 +119,16 @@ export const save = async (orderInfos: OrderInfo[]): Promise<SaveResult[]> => {
         });
       }
 
-      // TODO: Check: order is valid calling router
+      // Check: order is valid using router
+      if (
+        order.params.orderType === OrderType.ERC721_TO_ERC20 ||
+        order.params.orderType === OrderType.ERC20_TO_ERC721
+      ) {
+        return results.push({
+          id,
+          status: "unsupported-order-type",
+        });
+      }
 
       // Check: order fillability
       let fillabilityStatus = "fillable";
@@ -167,6 +178,57 @@ export const save = async (orderInfos: OrderInfo[]): Promise<SaveResult[]> => {
       }
 
       // TODO Handle: price and value
+      const tokenIds = order.params.tokenIds || Math.floor(Number(order.params.amount)).toString();
+      let amounts = [];
+      if (order.params.orderType === OrderType.ERC721_TO_ETH) {
+        try {
+          const routerContract = new Contract(
+            Sdk.SweepAndFlip.Addresses.Router[config.chainId],
+            new Interface([
+              `
+              function getAmountsInCollection(
+                uint[] memory tokenIdsOut, address[] memory path, bool capRoyaltyFee
+              ) external view returns (
+                uint[] memory amounts
+                )
+            `,
+            ])
+          );
+
+          amounts = await routerContract.getAmountsInCollection(tokenIds, order.params.path, false);
+        } catch (error) {
+          return results.push({
+            id,
+            status: "invalid-order",
+          });
+        }
+      } else if (order.params.orderType === OrderType.ETH_TO_ERC721) {
+        try {
+          const routerContract = new Contract(
+            Sdk.SweepAndFlip.Addresses.Router[config.chainId],
+            new Interface([
+              `
+              function getAmountsOutCollection(
+                uint[] memory tokenIdsIn, address[] memory path, bool capRoyaltyFee
+              ) external view returns (
+                uint[] memory amounts
+                )
+            `,
+            ])
+          );
+
+          amounts = await routerContract.getAmountsOutCollection(
+            tokenIds,
+            order.params.path,
+            false
+          );
+        } catch (error) {
+          return results.push({
+            id,
+            status: "invalid-order",
+          });
+        }
+      }
 
       // Handle: source
       const sources = await Sources.getInstance();
@@ -190,8 +252,8 @@ export const save = async (orderInfos: OrderInfo[]): Promise<SaveResult[]> => {
         token_set_schema_hash: toBuffer(schemaHash),
         maker: toBuffer(orderParams.signerAddress),
         taker: toBuffer(AddressZero),
-        price: orderParams.amount.toString(),
-        value: orderParams.amount.toString(),
+        price: amounts[0].toString(),
+        value: amounts[0].toString(),
         currency: toBuffer(orderParams.currency),
         currency_price: orderParams.amount.toString(),
         currency_value: orderParams.amount.toString(),
